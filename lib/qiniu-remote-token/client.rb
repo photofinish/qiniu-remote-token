@@ -55,7 +55,7 @@ module QiniuRemoteToken
         end
         response = http.request(req)
         case response.code
-          when '201'
+          when '200'
             return JSON.parse(response.body).with_indifferent_access
           else
             raise ResponseError, "error with #{response.code} "

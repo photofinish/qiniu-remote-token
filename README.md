@@ -9,20 +9,66 @@ TODO: Delete this and the text above, and describe your gem
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'qiniu-remote-token'
+gem 'qiniu-remote-token', :git => 'git@github.com:photofinish/qiniu-remote-token.git'
 ```
 
 And then execute:
 
     $ bundle
 
-Or install it yourself as:
-
-    $ gem install qiniu_remote_tocken
-
 ## Usage
 
-TODO: Write usage instructions here
+### Server
+
+controller
+
+```
+require 'qiniu-remote-token/server'
+class AuthsController < ActionController::Base
+  include QiniuRemoteToken::Server
+  def show
+    if 'a-client' == params[:id]
+      json = Struct.new :ak, :bucket
+      render json: json.new(Service.access_key, Service.bucket)
+    end
+  end
+
+  def create
+    params.require :scope
+    params.require :deadline
+    @uploadToken = Service.generate_token params
+    render json:  { token: @uploadToken }
+  end
+end
+```
+
+config
+
+```
+development:
+  qiniu_access_key: xxx
+  qiniu_secret_key: xxx
+  qiniu_bucket_domain: xxx
+  qiniu_bucket: xxx
+```
+
+### Client
+
+uploader
+
+```
+require 'qiniu-remote-token/client'
+class ImageUploader < CarrierWave::Uploader::Base
+  include QiniuRemoteToken::Client
+end
+```
+
+config
+
+```
+qiniu_access_key: http://localhost:3000/auths/a-client
+qiniu_secret_key: http://localhost:3000/auths
+```
 
 ## Development
 
